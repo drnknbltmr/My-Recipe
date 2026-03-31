@@ -91,9 +91,18 @@ tr:last-child td{border-bottom:none}tr:hover td{background:var(--surface2)}
 .ic2{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--border);background:var(--bg);color:var(--text2);transition:all .11s;user-select:none}
 .ic2:hover{border-color:var(--primary);color:var(--primary);background:var(--tag-bg)}.ic2.sel2{border-color:var(--primary);background:var(--primary);color:#fff}
 .si2{margin-top:11px;display:flex;flex-wrap:wrap;gap:5px;min-height:30px}
-.sit{display:inline-flex;align-items:center;gap:4px;padding:3px 7px 3px 11px;border-radius:999px;background:var(--primary);color:#fff;font-size:12px;font-weight:500}
-.sit button{background:none;border:none;color:rgba(255,255,255,.75);cursor:pointer;font-size:13px;line-height:1;padding:0;display:flex;align-items:center}
-.sit button:hover{color:#fff}
+.sit{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:var(--rs);background:var(--surface2);border:1px solid var(--border);color:var(--text);font-size:13px;font-weight:500;margin-bottom:6px}
+.sit-name{flex:1;font-weight:600}
+.sit-amt{width:55px;padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:12px;text-align:right}
+.sit-unit{width:60px;padding:3px 4px;border:1px solid var(--border);border-radius:4px;font-size:11px;background:#fff}
+.sit button{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0 2px;display:flex;align-items:center;transition:color .15s}
+.sit button:hover{color:var(--danger)}
+.calc-nutri{background:var(--tag-bg);padding:14px;border-radius:var(--r);border:1px dashed var(--primary);margin-top:14px}
+.calc-hd{font-size:12px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;justify-content:space-between}
+.calc-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.calc-item{text-align:center}
+.calc-val{display:block;font-size:14px;font-weight:700;color:var(--primary)}
+.calc-lbl{display:block;font-size:10px;color:var(--text2);text-transform:uppercase}
 .anr{display:flex;gap:7px;margin-top:7px}.anr input{flex:1;padding:6px 10px;border:1.5px solid var(--border);border-radius:5px;font-size:13px;outline:none;font-family:'DM Sans',sans-serif;transition:border-color .14s}
 .anr input:focus{border-color:var(--accent)}
 /* Filter pills */
@@ -269,41 +278,104 @@ tr:last-child td{border-bottom:none}tr:hover td{background:var(--surface2)}
 
 <script>
 // ── DATA ─────────────────────────────────────────────────────────────────
+const ING_DB={
+  "rice":{kcal:130,p:2.7,f:0.3,c:28,fib:0.4,per:100},
+  "chicken breast":{kcal:165,p:31,f:3.6,c:0,fib:0,per:100},
+  "carrot":{kcal:41,p:0.9,f:0.2,c:10,fib:2.8,per:100},
+  "corn":{kcal:86,p:3.3,f:1.4,c:19,fib:2,per:100},
+  "arugula":{kcal:25,p:2.6,f:0.7,c:3.7,fib:1.6,per:100},
+  "feta":{kcal:264,p:14,f:21,c:4.1,fib:0,per:100},
+  "cauliflower":{kcal:25,p:1.9,f:0.3,c:5,fib:2,per:100},
+  "chickpeas":{kcal:164,p:8.9,f:2.6,c:27,fib:7.6,per:100},
+  "cooking cream":{kcal:196,p:2.4,f:19,c:3.7,fib:0,per:100},
+  "sun-dried tomatoes":{kcal:258,p:14,f:3,c:56,fib:12,per:100},
+  "parmesan":{kcal:431,p:38,f:29,c:4.1,fib:0,per:100},
+  "onion":{kcal:40,p:1.1,f:0.1,c:9,fib:1.7,per:100},
+  "tuna":{kcal:132,p:28,f:1.3,c:0,fib:0,per:100},
+  "eggs":{kcal:155,p:13,f:11,c:1.1,fib:0,per:100},
+  "cottage cheese":{kcal:98,p:11,f:4.3,c:3.4,fib:0,per:100},
+  "broccoli":{kcal:34,p:2.8,f:0.4,c:7,fib:2.6,per:100},
+  "yogurt":{kcal:59,p:10,f:0.4,c:3.6,fib:0,per:100},
+  "peas":{kcal:81,p:5.4,f:0.4,c:14,fib:5.7,per:100},
+  "dill":{kcal:43,p:3.5,f:1.1,c:7,fib:2.1,per:100},
+  "parsley":{kcal:36,p:3,f:0.8,c:6,fib:3.3,per:100},
+  "vinegar":{kcal:18,p:0,f:0,c:0,fib:0,per:100},
+  "beetroot":{kcal:43,p:1.6,f:0.2,c:10,fib:2.8,per:100},
+  "walnuts":{kcal:654,p:15,f:65,c:14,fib:6.7,per:100},
+  "garlic":{kcal:149,p:6.4,f:0.5,c:33,fib:2.1,per:100},
+  "celery":{kcal:16,p:0.7,f:0.2,c:3,fib:1.6,per:100},
+  "radish":{kcal:16,p:0.7,f:0.1,c:3.4,fib:1.6,per:100},
+  "spinach":{kcal:23,p:2.9,f:0.4,c:3.6,fib:2.2,per:100},
+  "tomatoes":{kcal:18,p:0.9,f:0.2,c:3.9,fib:1.2,per:100},
+  "noodles":{kcal:138,p:4.5,f:2.1,c:25,fib:1.2,per:100},
+  "red pepper":{kcal:31,p:1,f:0.3,c:6,fib:2.1,per:100},
+  "mushrooms":{kcal:22,p:3.1,f:0.3,c:3.3,fib:1,per:100},
+  "tofu":{kcal:76,p:8,f:4.8,c:1.9,fib:0.3,per:100},
+  "salmon":{kcal:208,p:20,f:13,c:0,fib:0,per:100},
+  "edamame":{kcal:122,p:11,f:5.2,c:10,fib:5.2,per:100},
+  "cucumber":{kcal:15,p:0.7,f:0.1,c:3.6,fib:0.5,per:100},
+  "avocado":{kcal:160,p:2,f:15,c:9,fib:7,per:100},
+  "tortillas":{kcal:237,p:7,f:3,c:45,fib:2,per:100},
+  "cheese":{kcal:402,p:25,f:33,c:1.3,fib:0,per:100},
+  "miso":{kcal:199,p:13,f:6,c:26,fib:5,per:100},
+  "zucchini":{kcal:17,p:1.2,f:0.3,c:3.1,fib:1,per:100},
+  "beef":{kcal:250,p:26,f:15,c:0,fib:0,per:100},
+  "pasta":{kcal:131,p:5,f:1.1,c:25,fib:1.2,per:100},
+  "rice paper":{kcal:335,p:0,f:0,c:84,fib:0,per:100},
+  "cabbage":{kcal:25,p:1.3,f:0.1,c:5.8,fib:2.5,per:100},
+  "sweet potatoes":{kcal:86,p:1.6,f:0.1,c:20,fib:3,per:100},
+  "cocoa":{kcal:228,p:20,f:14,c:58,fib:33,per:100},
+  "peanut butter":{kcal:588,p:25,f:50,c:20,fib:6,per:100},
+  "chocolate":{kcal:546,p:5,f:31,c:61,fib:7,per:100},
+  "baking powder":{kcal:53,p:0,f:0,c:28,fib:0,per:100},
+  "vanilla":{kcal:288,p:0,f:0,c:13,fib:0,per:100},
+  "honey":{kcal:304,p:0.3,f:0,c:82,fib:0,per:100},
+  "banana":{kcal:89,p:1.1,f:0.3,c:23,fib:2.6,per:100},
+  "oats":{kcal:389,p:17,f:7,c:66,fib:10,per:100},
+  "flour":{kcal:364,p:10,f:1,c:76,fib:2.7,per:100},
+  "Philadelphia cheese":{kcal:342,p:6,f:34,c:4,fib:0,per:100},
+  "apple":{kcal:52,p:0.3,f:0.2,c:14,fib:2.4,per:100},
+  "flax seeds":{kcal:534,p:18,f:42,c:29,fib:27,per:100},
+  "chia seeds":{kcal:486,p:17,f:31,c:42,fib:34,per:100},
+  "oil":{kcal:884,p:0,f:100,c:0,fib:0,per:100},
+  "dark chocolate":{kcal:600,p:7.8,f:43,c:46,fib:11,per:100},
+  "tomato sauce":{kcal:29,p:1.3,f:0.2,c:6.5,fib:1.9,per:100},
+};
 const DR=[
-  {id:"r1",name:"Rice bowl",ingredients:["rice","chicken breast","carrot","corn","arugula","feta"],notes:"carrot OR corn",nutrition:{cal:450,protein:35,fat:10,carbs:55,fiber:4,serving:"~1 serving"}},
-  {id:"r2",name:"Roasted cauliflower",ingredients:["cauliflower","chickpeas","feta"],notes:"",nutrition:{cal:280,protein:12,fat:10,carbs:35,fiber:8,serving:"~1 serving"}},
-  {id:"r3",name:"Chickpeas sauce",ingredients:["cooking cream","chickpeas","sun-dried tomatoes","parmesan","onion"],notes:"",nutrition:{cal:380,protein:14,fat:18,carbs:40,fiber:7,serving:"~1 serving"}},
-  {id:"r4",name:"Tuna salad",ingredients:["tuna","onion","eggs","cottage cheese"],notes:"",nutrition:{cal:250,protein:30,fat:8,carbs:10,fiber:2,serving:"~1 serving"}},
-  {id:"r5",name:"Broccoli salad",ingredients:["broccoli","chickpeas","yogurt"],notes:"",nutrition:{cal:220,protein:10,fat:6,carbs:30,fiber:7,serving:"~1 serving"}},
-  {id:"r6",name:"Peas salad",ingredients:["peas","dill","parsley","onion","vinegar"],notes:"",nutrition:{cal:150,protein:6,fat:2,carbs:25,fiber:6,serving:"~1 serving"}},
-  {id:"r7",name:"Beet salad",ingredients:["beetroot","walnuts","garlic"],notes:"",nutrition:{cal:180,protein:4,fat:10,carbs:20,fiber:4,serving:"~1 serving"}},
-  {id:"r8",name:"Multivitamin salad",ingredients:["beetroot","celery","radish","vinegar","garlic"],notes:"",nutrition:{cal:120,protein:3,fat:2,carbs:18,fiber:5,serving:"~1 serving"}},
-  {id:"r9",name:"Caesar salad",ingredients:["chicken breast","spinach","parmesan","eggs","tomatoes","yogurt","garlic"],notes:"",nutrition:{cal:320,protein:30,fat:12,carbs:18,fiber:4,serving:"~1 serving"}},
-  {id:"r10",name:"Noodles stir fry",ingredients:["noodles","carrot","onion","garlic","red pepper","mushrooms","tofu","tuna","chicken breast"],notes:"tofu OR tuna OR chicken breast",nutrition:{cal:420,protein:20,fat:10,carbs:60,fiber:5,serving:"~1 serving"}},
-  {id:"r11",name:"Butter chicken",ingredients:["chicken breast","yogurt","rice","tomato sauce","onion","garlic"],notes:"",nutrition:{cal:480,protein:38,fat:15,carbs:45,fiber:4,serving:"~1 serving"}},
-  {id:"r12",name:"Poke bowl",ingredients:["rice","salmon","tuna","edamame","carrot","cucumber","avocado"],notes:"salmon OR tuna",nutrition:{cal:450,protein:28,fat:15,carbs:50,fiber:6,serving:"~1 serving"}},
-  {id:"r13",name:"Quesadilla",ingredients:["tortillas","chicken breast","red pepper","corn","cheese"],notes:"",nutrition:{cal:480,protein:32,fat:18,carbs:45,fiber:4,serving:"~1 serving"}},
-  {id:"r14",name:"Miso soup",ingredients:["tofu","miso","spinach","mushrooms","broccoli"],notes:"",nutrition:{cal:180,protein:12,fat:6,carbs:18,fiber:5,serving:"~1 serving"}},
-  {id:"r15",name:"Squash patties",ingredients:["eggs","zucchini","carrot","onion","red pepper"],notes:"",nutrition:{cal:220,protein:10,fat:8,carbs:22,fiber:4,serving:"~1 serving"}},
-  {id:"r16",name:"Egg muffins",ingredients:["eggs","red pepper","cottage cheese"],notes:"",nutrition:{cal:180,protein:14,fat:10,carbs:8,fiber:2,serving:"~2 muffins"}},
-  {id:"r17",name:"Street corn",ingredients:["corn","parsley","yogurt","feta"],notes:"",nutrition:{cal:200,protein:6,fat:8,carbs:28,fiber:3,serving:"~1 serving"}},
-  {id:"r18",name:"Lasagna",ingredients:["beef","tomato sauce","cheese","pasta"],notes:"",nutrition:{cal:520,protein:28,fat:22,carbs:52,fiber:4,serving:"~1 serving"}},
-  {id:"r19",name:"Dumplings",ingredients:["chicken breast","carrot","onion","rice paper"],notes:"",nutrition:{cal:320,protein:22,fat:8,carbs:38,fiber:3,serving:"~6 pieces"}},
-  {id:"r20",name:"Quiche",ingredients:["cauliflower","broccoli","chicken breast","onion","red pepper","cooking cream","cheese"],notes:"",nutrition:{cal:380,protein:25,fat:18,carbs:22,fiber:5,serving:"~1 serving"}},
-  {id:"r21",name:"Steak salad",ingredients:["beef","chickpeas","cucumber","tomatoes","parsley"],notes:"",nutrition:{cal:350,protein:28,fat:14,carbs:20,fiber:6,serving:"~1 serving"}},
-  {id:"r22",name:"Stuffed peppers",ingredients:["red pepper","rice","mushrooms","carrot","onion"],notes:"",nutrition:{cal:280,protein:8,fat:4,carbs:50,fiber:5,serving:"~2 peppers"}},
-  {id:"r23",name:"Kapustneak",ingredients:["cabbage","red pepper","onion","beef","chicken breast"],notes:"beef OR chicken breast",nutrition:{cal:300,protein:22,fat:10,carbs:28,fiber:5,serving:"~1 serving"}},
-  {id:"r24",name:"Julien",ingredients:["mushrooms","chicken breast","onion","garlic","cooking cream"],notes:"",nutrition:{cal:380,protein:28,fat:20,carbs:15,fiber:3,serving:"~1 serving"}},
-  {id:"r25",name:"Brownies",ingredients:["sweet potatoes","cocoa","eggs","peanut butter","chocolate","baking powder","vanilla","honey"],notes:"",nutrition:{cal:320,protein:8,fat:16,carbs:40,fiber:4,serving:"~2 brownies"}},
-  {id:"r26",name:"Banana bread",ingredients:["banana","oats","flour","baking powder","vanilla","walnuts","chocolate","eggs","yogurt","honey"],notes:"",nutrition:{cal:280,protein:7,fat:9,carbs:48,fiber:4,serving:"~1 slice"}},
-  {id:"r27",name:"Sirniki",ingredients:["cottage cheese","eggs","vanilla","honey"],notes:"",nutrition:{cal:220,protein:14,fat:8,carbs:22,fiber:1,serving:"~3 pieces"}},
-  {id:"r28",name:"Cheesecake",ingredients:["Philadelphia cheese","yogurt","eggs","honey","vanilla","flour"],notes:"",nutrition:{cal:350,protein:10,fat:20,carbs:38,fiber:1,serving:"~1 slice"}},
-  {id:"r29",name:"Nimereuca salad",ingredients:["mushrooms","carrot","eggs","chicken breast","onion"],notes:"",nutrition:{cal:280,protein:22,fat:12,carbs:15,fiber:3,serving:"~1 serving"}},
-  {id:"r30",name:"Tzatziki",ingredients:["yogurt","dill","cucumber","oil"],notes:"",nutrition:{cal:100,protein:5,fat:5,carbs:8,fiber:1,serving:"~3 tbsp"}},
-  {id:"r31",name:"Alfredo",ingredients:["cooking cream","pasta","chicken breast","sun-dried tomatoes","onion","garlic","parmesan"],notes:"",nutrition:{cal:520,protein:32,fat:22,carbs:48,fiber:3,serving:"~1 serving"}},
-  {id:"r32",name:"Alade",ingredients:["oats","banana","eggs","dark chocolate","honey"],notes:"",nutrition:{cal:250,protein:8,fat:8,carbs:36,fiber:4,serving:"~3 pancakes"}},
-  {id:"r33",name:"Chia pudding",ingredients:["banana","peanut butter","yogurt","chia seeds","cocoa","vanilla","honey","oats"],notes:"",nutrition:{cal:320,protein:10,fat:12,carbs:45,fiber:8,serving:"~1 jar"}},
-  {id:"r34",name:"Flax porridge",ingredients:["flax seeds","banana","apple"],notes:"",nutrition:{cal:180,protein:5,fat:6,carbs:28,fiber:6,serving:"~1 bowl"}},
+  {id:"r1",name:"Rice bowl",ingredients:[{name:"rice",amount:100,unit:"g"},{name:"chicken breast",amount:150,unit:"g"},{name:"carrot",amount:50,unit:"g"},{name:"corn",amount:30,unit:"g"},{name:"arugula",amount:20,unit:"g"},{name:"feta",amount:30,unit:"g"}],notes:"carrot OR corn"},
+  {id:"r2",name:"Roasted cauliflower",ingredients:[{name:"cauliflower",amount:300,unit:"g"},{name:"chickpeas",amount:100,unit:"g"},{name:"feta",amount:30,unit:"g"}],notes:""},
+  {id:"r3",name:"Chickpeas sauce",ingredients:[{name:"cooking cream",amount:100,unit:"ml"},{name:"chickpeas",amount:150,unit:"g"},{name:"sun-dried tomatoes",amount:30,unit:"g"},{name:"parmesan",amount:20,unit:"g"},{name:"onion",amount:50,unit:"g"}],notes:""},
+  {id:"r4",name:"Tuna salad",ingredients:[{name:"tuna",amount:150,unit:"g"},{name:"onion",amount:30,unit:"g"},{name:"eggs",amount:2,unit:"unit"},{name:"cottage cheese",amount:100,unit:"g"}],notes:""},
+  {id:"r5",name:"Broccoli salad",ingredients:[{name:"broccoli",amount:200,unit:"g"},{name:"chickpeas",amount:100,unit:"g"},{name:"yogurt",amount:100,unit:"g"}],notes:""},
+  {id:"r6",name:"Peas salad",ingredients:[{name:"peas",amount:150,unit:"g"},{name:"dill",amount:10,unit:"g"},{name:"parsley",amount:10,unit:"g"},{name:"onion",amount:30,unit:"g"},{name:"vinegar",amount:10,unit:"ml"}],notes:""},
+  {id:"r7",name:"Beet salad",ingredients:[{name:"beetroot",amount:200,unit:"g"},{name:"walnuts",amount:30,unit:"g"},{name:"garlic",amount:5,unit:"g"}],notes:""},
+  {id:"r8",name:"Multivitamin salad",ingredients:[{name:"beetroot",amount:100,unit:"g"},{name:"celery",amount:50,unit:"g"},{name:"radish",amount:50,unit:"g"},{name:"vinegar",amount:10,unit:"ml"},{name:"garlic",amount:5,unit:"g"}],notes:""},
+  {id:"r9",name:"Caesar salad",ingredients:[{name:"chicken breast",amount:150,unit:"g"},{name:"spinach",amount:50,unit:"g"},{name:"parmesan",amount:20,unit:"g"},{name:"eggs",amount:1,unit:"unit"},{name:"tomatoes",amount:100,unit:"g"},{name:"yogurt",amount:50,unit:"g"},{name:"garlic",amount:5,unit:"g"}],notes:""},
+  {id:"r10",name:"Noodles stir fry",ingredients:[{name:"noodles",amount:100,unit:"g"},{name:"carrot",amount:50,unit:"g"},{name:"onion",amount:50,unit:"g"},{name:"garlic",amount:5,unit:"g"},{name:"red pepper",amount:50,unit:"g"},{name:"mushrooms",amount:50,unit:"g"},{name:"tofu",amount:100,unit:"g"},{name:"tuna",amount:100,unit:"g"},{name:"chicken breast",amount:100,unit:"g"}],notes:"tofu OR tuna OR chicken breast"},
+  {id:"r11",name:"Butter chicken",ingredients:[{name:"chicken breast",amount:200,unit:"g"},{name:"yogurt",amount:100,unit:"g"},{name:"rice",amount:100,unit:"g"},{name:"tomato sauce",amount:150,unit:"ml"},{name:"onion",amount:50,unit:"g"},{name:"garlic",amount:5,unit:"g"}],notes:""},
+  {id:"r12",name:"Poke bowl",ingredients:[{name:"rice",amount:100,unit:"g"},{name:"salmon",amount:100,unit:"g"},{name:"tuna",amount:100,unit:"g"},{name:"edamame",amount:50,unit:"g"},{name:"carrot",amount:50,unit:"g"},{name:"cucumber",amount:50,unit:"g"},{name:"avocado",amount:50,unit:"g"}],notes:"salmon OR tuna"},
+  {id:"r13",name:"Quesadilla",ingredients:[{name:"tortillas",amount:2,unit:"unit"},{name:"chicken breast",amount:150,unit:"g"},{name:"red pepper",amount:50,unit:"g"},{name:"corn",amount:30,unit:"g"},{name:"cheese",amount:50,unit:"g"}],notes:""},
+  {id:"r14",name:"Miso soup",ingredients:[{name:"tofu",amount:100,unit:"g"},{name:"miso",amount:30,unit:"g"},{name:"spinach",amount:50,unit:"g"},{name:"mushrooms",amount:50,unit:"g"},{name:"broccoli",amount:50,unit:"g"}],notes:""},
+  {id:"r15",name:"Squash patties",ingredients:[{name:"eggs",amount:2,unit:"unit"},{name:"zucchini",amount:200,unit:"g"},{name:"carrot",amount:100,unit:"g"},{name:"onion",amount:50,unit:"g"},{name:"red pepper",amount:50,unit:"g"}],notes:""},
+  {id:"r16",name:"Egg muffins",ingredients:[{name:"eggs",amount:3,unit:"unit"},{name:"red pepper",amount:50,unit:"g"},{name:"cottage cheese",amount:100,unit:"g"}],notes:""},
+  {id:"r17",name:"Street corn",ingredients:[{name:"corn",amount:200,unit:"g"},{name:"parsley",amount:10,unit:"g"},{name:"yogurt",amount:50,unit:"g"},{name:"feta",amount:30,unit:"g"}],notes:""},
+  {id:"r18",name:"Lasagna",ingredients:[{name:"beef",amount:200,unit:"g"},{name:"tomato sauce",amount:200,unit:"ml"},{name:"cheese",amount:100,unit:"g"},{name:"pasta",amount:150,unit:"g"}],notes:""},
+  {id:"r19",name:"Dumplings",ingredients:[{name:"chicken breast",amount:150,unit:"g"},{name:"carrot",amount:50,unit:"g"},{name:"onion",amount:50,unit:"g"},{name:"rice paper",amount:10,unit:"unit"}],notes:""},
+  {id:"r20",name:"Quiche",ingredients:[{name:"cauliflower",amount:100,unit:"g"},{name:"broccoli",amount:100,unit:"g"},{name:"chicken breast",amount:150,unit:"g"},{name:"onion",amount:50,unit:"g"},{name:"red pepper",amount:50,unit:"g"},{name:"cooking cream",amount:100,unit:"ml"},{name:"cheese",amount:50,unit:"g"}],notes:""},
+  {id:"r21",name:"Steak salad",ingredients:[{name:"beef",amount:150,unit:"g"},{name:"chickpeas",amount:100,unit:"g"},{name:"cucumber",amount:100,unit:"g"},{name:"tomatoes",amount:100,unit:"g"},{name:"parsley",amount:10,unit:"g"}],notes:""},
+  {id:"r22",name:"Stuffed peppers",ingredients:[{name:"red pepper",amount:2,unit:"unit"},{name:"rice",amount:100,unit:"g"},{name:"mushrooms",amount:100,unit:"g"},{name:"carrot",amount:50,unit:"g"},{name:"onion",amount:50,unit:"g"}],notes:""},
+  {id:"r23",name:"Kapustneak",ingredients:[{name:"cabbage",amount:200,unit:"g"},{name:"red pepper",amount:50,unit:"g"},{name:"onion",amount:50,unit:"g"},{name:"beef",amount:100,unit:"g"},{name:"chicken breast",amount:100,unit:"g"}],notes:"beef OR chicken breast"},
+  {id:"r24",name:"Julien",ingredients:[{name:"mushrooms",amount:200,unit:"g"},{name:"chicken breast",amount:200,unit:"g"},{name:"onion",amount:50,unit:"g"},{name:"garlic",amount:5,unit:"g"},{name:"cooking cream",amount:100,unit:"ml"}],notes:""},
+  {id:"r25",name:"Brownies",ingredients:[{name:"sweet potatoes",amount:200,unit:"g"},{name:"cocoa",amount:50,unit:"g"},{name:"eggs",amount:2,unit:"unit"},{name:"peanut butter",amount:100,unit:"g"},{name:"chocolate",amount:50,unit:"g"},{name:"baking powder",amount:5,unit:"g"},{name:"vanilla",amount:5,unit:"ml"},{name:"honey",amount:50,unit:"g"}],notes:""},
+  {id:"r26",name:"Banana bread",ingredients:[{name:"banana",amount:200,unit:"g"},{name:"oats",amount:100,unit:"g"},{name:"flour",amount:100,unit:"g"},{name:"baking powder",amount:5,unit:"g"},{name:"vanilla",amount:5,unit:"ml"},{name:"walnuts",amount:50,unit:"g"},{name:"chocolate",amount:50,unit:"g"},{name:"eggs",amount:1,unit:"unit"},{name:"yogurt",amount:50,unit:"g"},{name:"honey",amount:50,unit:"g"}],notes:""},
+  {id:"r27",name:"Sirniki",ingredients:[{name:"cottage cheese",amount:250,unit:"g"},{name:"eggs",amount:1,unit:"unit"},{name:"vanilla",amount:5,unit:"ml"},{name:"honey",amount:30,unit:"g"}],notes:""},
+  {id:"r28",name:"Cheesecake",ingredients:[{name:"Philadelphia cheese",amount:200,unit:"g"},{name:"yogurt",amount:200,unit:"g"},{name:"eggs",amount:2,unit:"unit"},{name:"honey",amount:50,unit:"g"},{name:"vanilla",amount:5,unit:"ml"},{name:"flour",amount:50,unit:"g"}],notes:""},
+  {id:"r29",name:"Nimereuca salad",ingredients:[{name:"mushrooms",amount:150,unit:"g"},{name:"carrot",amount:100,unit:"g"},{name:"eggs",amount:2,unit:"unit"},{name:"chicken breast",amount:150,unit:"g"},{name:"onion",amount:50,unit:"g"}],notes:""},
+  {id:"r30",name:"Tzatziki",ingredients:[{name:"yogurt",amount:200,unit:"g"},{name:"dill",amount:20,unit:"g"},{name:"cucumber",amount:100,unit:"g"},{name:"oil",amount:10,unit:"ml"}],notes:""},
+  {id:"r31",name:"Alfredo",ingredients:[{name:"cooking cream",amount:200,unit:"ml"},{name:"pasta",amount:200,unit:"g"},{name:"chicken breast",amount:200,unit:"g"},{name:"sun-dried tomatoes",amount:30,unit:"g"},{name:"onion",amount:50,unit:"g"},{name:"garlic",amount:5,unit:"g"},{name:"parmesan",amount:30,unit:"g"}],notes:""},
+  {id:"r32",name:"Alade",ingredients:[{name:"oats",amount:100,unit:"g"},{name:"banana",amount:100,unit:"g"},{name:"eggs",amount:1,unit:"unit"},{name:"dark chocolate",amount:20,unit:"g"},{name:"honey",amount:20,unit:"g"}],notes:""},
+  {id:"r33",name:"Chia pudding",ingredients:[{name:"banana",amount:100,unit:"g"},{name:"peanut butter",amount:30,unit:"g"},{name:"yogurt",amount:150,unit:"g"},{name:"chia seeds",amount:30,unit:"g"},{name:"cocoa",amount:10,unit:"g"},{name:"vanilla",amount:5,unit:"ml"},{name:"honey",amount:20,unit:"g"},{name:"oats",amount:30,unit:"g"}],notes:""},
+  {id:"r34",name:"Flax porridge",ingredients:[{name:"flax seeds",amount:50,unit:"g"},{name:"banana",amount:100,unit:"g"},{name:"apple",amount:100,unit:"g"}],notes:""},
 ];
 
 let S={recipes:[],pantry:{},selected:{},editId:null,formIngs:[],ff:'all'};
@@ -311,14 +383,43 @@ let S={recipes:[],pantry:{},selected:{},editId:null,formIngs:[],ff:'all'};
 function load(){
   try{
     const s=localStorage.getItem('rp2');
-    if(s){const d=JSON.parse(s);S.recipes=d.recipes||JSON.parse(JSON.stringify(DR));S.pantry=d.pantry||{};S.selected=d.selected||{};}
+    if(s){
+      const d=JSON.parse(s);
+      S.recipes=d.recipes||JSON.parse(JSON.stringify(DR));
+      // Migration: Ensure ingredients are objects
+      S.recipes.forEach(r=>{
+        r.ingredients=r.ingredients.map(i=>typeof i==='string'?{name:i,amount:100,unit:'g'}:i);
+      });
+      S.pantry=d.pantry||{};S.selected=d.selected||{};
+    }
     else S.recipes=JSON.parse(JSON.stringify(DR));
   }catch(e){S.recipes=JSON.parse(JSON.stringify(DR));}
 }
 function save(){localStorage.setItem('rp2',JSON.stringify({recipes:S.recipes,pantry:S.pantry,selected:S.selected}));}
-function allIngs(){const s=new Set();S.recipes.forEach(r=>r.ingredients.forEach(i=>s.add(i)));return[...s].sort();}
+function allIngs(){const s=new Set();S.recipes.forEach(r=>r.ingredients.forEach(i=>s.add(i.name)));return[...s].sort();}
 const cap=s=>s?s.charAt(0).toUpperCase()+s.slice(1):s;
 const esc=s=>s.replace(/'/g,"\\'");
+
+// ── NUTRITION CALC ────────────────────────────────────────────────────────
+function calcNutri(ings){
+  const t={cal:0,protein:0,fat:0,carbs:0,fiber:0};
+  ings.forEach(i=>{
+    const d=ING_DB[i.name.toLowerCase()];
+    if(d){
+      const f=i.amount/d.per;
+      t.cal+=Math.round(d.kcal*f);
+      t.protein+=Math.round(d.p*f*10)/10;
+      t.fat+=Math.round(d.f*f*10)/10;
+      t.carbs+=Math.round(d.c*f*10)/10;
+      t.fiber+=Math.round(d.fib*f*10)/10;
+    }
+  });
+  t.protein=Math.round(t.protein*10)/10;
+  t.fat=Math.round(t.fat*10)/10;
+  t.carbs=Math.round(t.carbs*10)/10;
+  t.fiber=Math.round(t.fiber*10)/10;
+  return t;
+}
 
 // ── NAV ──────────────────────────────────────────────────────────────────
 function showPage(n){
