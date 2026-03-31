@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Recipe Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F7F5F0;--surface:#FFFFFF;--surface2:#F0EDE6;--border:#E2DDD4;--primary:#2C4A1E;--primary-l:#3D6629;--accent:#C8873A;--danger:#B94040;--success:#3A7D44;--text:#1C1C1A;--text2:#5A574F;--text3:#9A9589;--tag-bg:#EBF3E8;--tag-txt:#2C4A1E;--r:14px;--rs:8px;--sh:0 2px 16px rgba(44,74,30,.10);--sh-lg:0 8px 40px rgba(44,74,30,.14);--nav:64px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;height:var(--nav);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;box-shadow:0 1px 12px rgba(44,74,30,.07)}
+.nav-logo{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--primary);margin-right:28px;white-space:nowrap;flex-shrink:0}.nav-logo span{color:var(--accent)}
+.nav-tabs{display:flex;gap:2px;flex:1;overflow-x:auto}.nav-tabs::-webkit-scrollbar{display:none}
+.tab-btn{background:none;border:none;cursor:pointer;padding:8px 14px;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--text2);white-space:nowrap;transition:all .15s;display:flex;align-items:center;gap:6px}
+.tab-btn:hover{background:var(--surface2);color:var(--text)}.tab-btn.active{background:var(--tag-bg);color:var(--primary);font-weight:600}
+main{padding-top:var(--nav);min-height:100vh}
+.page{display:none;padding:32px 24px;max-width:1200px;margin:0 auto}.page.active{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.ph{display:flex;align-items:flex-start;gap:20px;margin-bottom:28px;flex-wrap:wrap}.ph-l{flex:1;min-width:200px}.ph-r{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.page-title{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;color:var(--primary);line-height:1.2}.page-sub{color:var(--text2);margin-top:4px;font-size:14px}
+.sw{position:relative;display:flex;align-items:center}.sw svg{position:absolute;left:11px;pointer-events:none;color:var(--text3);width:15px;height:15px}
+.si{padding:9px 13px 9px 34px;border:1.5px solid var(--border);border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);background:var(--surface);width:220px;transition:border-color .15s,box-shadow .15s;outline:none}
+.si:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(44,74,30,.10)}.si::placeholder{color:var(--text3)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 13px;background:var(--surface);border:1.5px solid var(--border);border-radius:999px;font-size:13px;color:var(--text2);font-weight:500}
+.chip .n{font-family:'Playfair Display',serif;font-weight:700;font-size:15px;color:var(--primary)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 17px;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .15s;text-decoration:none}
+.btn-p{background:var(--primary);color:#fff}.btn-p:hover{background:var(--primary-l);box-shadow:0 4px 14px rgba(44,74,30,.25);transform:translateY(-1px)}
+.btn-o{background:transparent;color:var(--primary);border:1.5px solid var(--primary)}.btn-o:hover{background:var(--tag-bg)}
+.btn-g{background:transparent;color:var(--text2)}.btn-g:hover{background:var(--surface2)}
+.btn-d{background:var(--danger);color:#fff}.btn-d:hover{background:#993333}
+.btn-sm{padding:6px 11px;font-size:13px}
+.cl{background:none;border:none;font-size:13px;color:var(--text3);cursor:pointer;text-decoration:underline;font-family:'DM Sans',sans-serif}.cl:hover{color:var(--text2)}
+/* Recipe Grid */
+.rg{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:15px}
+.rc{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:17px;cursor:pointer;transition:all .17s;position:relative;user-select:none}
+.rc:hover{box-shadow:var(--sh);border-color:#C5BEB2;transform:translateY(-2px)}.rc.sel{border-color:var(--primary);background:var(--tag-bg);box-shadow:0 0 0 3px rgba(44,74,30,.12)}
+.rc-check{position:absolute;top:13px;right:13px;width:21px;height:21px;border:2px solid var(--border);border-radius:5px;background:var(--surface);display:flex;align-items:center;justify-content:center;transition:all .14s}
+.rc.sel .rc-check{background:var(--primary);border-color:var(--primary)}.rc-check svg{display:none;color:#fff;width:12px;height:12px}.rc.sel .rc-check svg{display:block}
+.rc-name{font-family:'Playfair Display',serif;font-size:15px;font-weight:600;color:var(--text);line-height:1.3;margin-bottom:8px;padding-right:26px}
+.rc-meta{display:flex;gap:7px;flex-wrap:wrap}.ic{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:3px}
+.nt{font-size:10px;padding:2px 6px;background:#FFF3E0;color:#8C5E00;border-radius:3px;font-weight:500}
+.rc-cal{margin-top:9px;font-size:12px;color:var(--text3)}.rc-cal span{color:var(--accent);font-weight:600}
+.edit-btn{position:absolute;bottom:11px;right:11px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--text3);padding:3px 5px;border-radius:4px;transition:background .12s;opacity:0}
+.rc:hover .edit-btn{opacity:1}.edit-btn:hover{background:var(--surface2)!important}
+/* CB rows */
+.cbr{display:flex;align-items:center;gap:11px;padding:10px 15px;border-radius:var(--rs);transition:background .11s;cursor:pointer}
+.cbr:hover{background:var(--surface2)}
+.cb{width:19px;height:19px;flex-shrink:0;border:2px solid var(--border);border-radius:4px;background:var(--surface);display:flex;align-items:center;justify-content:center;transition:all .13s}
+.cb.on{background:var(--primary);border-color:var(--primary)}.cb.on svg{display:block!important}
+.cb svg{display:none;color:#fff;width:11px;height:11px}
+.cbl{font-size:14px;color:var(--text);flex:1}.cbl.done{text-decoration:line-through;color:var(--text3)}
+.bdg{font-size:11px;padding:2px 7px;border-radius:4px;font-weight:600}
+.bdg-buy{background:#FFEDED;color:var(--danger)}.bdg-have{background:var(--tag-bg);color:var(--success)}.bdg-miss{background:#FFF8ED;color:#8C5E00}
+/* Section card */
+.sc{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:18px}
+.sc-hd{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.sc-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:7px}
+.sc-body{padding:6px 3px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:768px){.two-col{grid-template-columns:1fr}}
+/* Feasibility */
+.rfl{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:11px;padding:14px}
+.fc{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:14px;transition:all .14s}
+.fc.ok{border-color:var(--success);background:#F2FAF3}.fc-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:5px}
+.fs{font-size:12px;font-weight:600;display:flex;align-items:center;gap:4px}.fs.y{color:var(--success)}.fs.n{color:var(--text3)}
+.fmiss{font-size:11px;color:var(--text3);margin-top:4px;line-height:1.5}
+/* Nutrition table */
+.ntw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th{text-align:left;padding:10px 15px;background:var(--surface2);color:var(--text2);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;border-bottom:2px solid var(--border)}
+td{padding:10px 15px;border-bottom:1px solid var(--border);color:var(--text)}
+tr:last-child td{border-bottom:none}tr:hover td{background:var(--surface2)}
+.nt-tot td{font-weight:700;background:var(--tag-bg)!important;color:var(--primary);border-top:2px solid var(--primary)}
+.num{text-align:right;font-variant-numeric:tabular-nums}.nt-sel{background:#F2FAF3!important}
+/* Add form */
+.fw{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:26px;max-width:660px}
+.fst{font-family:'Playfair Display',serif;font-size:17px;font-weight:600;color:var(--primary);margin-bottom:18px;padding-bottom:9px;border-bottom:1px solid var(--border)}
+.fg{margin-bottom:16px}.fl{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+.fi,.fta,.fsel{width:100%;padding:9px 13px;border:1.5px solid var(--border);border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);background:var(--surface);outline:none;transition:border-color .14s,box-shadow .14s}
+.fi:focus,.fta:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(44,74,30,.10)}.fta{resize:vertical;min-height:70px}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:540px){.fr{grid-template-columns:1fr}}
+/* Ingredient picker */
+.ip{border:1.5px solid var(--border);border-radius:var(--rs);padding:11px;background:var(--surface)}
+.ip-s{margin-bottom:9px;position:relative}.ip-s input{width:100%;padding:7px 11px 7px 30px;border:1.5px solid var(--border);border-radius:5px;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;background:var(--bg);transition:border-color .14s}
+.ip-s input:focus{border-color:var(--primary)}.ip-s svg{position:absolute;left:8px;top:50%;transform:translateY(-50%);width:13px;height:13px;color:var(--text3);pointer-events:none}
+.is{max-height:150px;overflow-y:auto;display:flex;flex-wrap:wrap;gap:5px}
+.ic2{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--border);background:var(--bg);color:var(--text2);transition:all .11s;user-select:none}
+.ic2:hover{border-color:var(--primary);color:var(--primary);background:var(--tag-bg)}.ic2.sel2{border-color:var(--primary);background:var(--primary);color:#fff}
+.si2{margin-top:11px;display:flex;flex-wrap:wrap;gap:5px;min-height:30px}
+.sit{display:inline-flex;align-items:center;gap:4px;padding:3px 7px 3px 11px;border-radius:999px;background:var(--primary);color:#fff;font-size:12px;font-weight:500}
+.sit button{background:none;border:none;color:rgba(255,255,255,.75);cursor:pointer;font-size:13px;line-height:1;padding:0;display:flex;align-items:center}
+.sit button:hover{color:#fff}
+.anr{display:flex;gap:7px;margin-top:7px}.anr input{flex:1;padding:6px 10px;border:1.5px solid var(--border);border-radius:5px;font-size:13px;outline:none;font-family:'DM Sans',sans-serif;transition:border-color .14s}
+.anr input:focus{border-color:var(--accent)}
+/* Filter pills */
+.fps{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px}
+.fp{padding:5px 13px;border-radius:999px;border:1.5px solid var(--border);background:var(--surface);font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .11s}
+.fp:hover{border-color:var(--primary);color:var(--primary)}.fp.on{background:var(--primary);border-color:var(--primary);color:#fff}
+/* empty / misc */
+.empty{text-align:center;padding:56px 20px;color:var(--text3)}.empty .ei{font-size:48px;margin-bottom:12px}
+.empty h3{font-family:'Playfair Display',serif;font-size:19px;color:var(--text2);margin-bottom:7px}.empty p{font-size:14px;max-width:300px;margin:0 auto}
+.nr{grid-column:1/-1;text-align:center;padding:36px;color:var(--text3);font-size:14px}
+.dvd{height:1px;background:var(--border);margin:18px 0}
+#toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--primary);color:#fff;padding:11px 22px;border-radius:999px;font-size:14px;font-weight:500;z-index:9999;transition:transform .28s cubic-bezier(.34,1.56,.64,1);box-shadow:var(--sh-lg);pointer-events:none}
+#toast.show{transform:translateX(-50%) translateY(0)}
+.mb-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center}.mb-bg.open{display:flex}
+.modal{background:var(--surface);border-radius:var(--r);padding:26px;max-width:380px;width:90%;box-shadow:var(--sh-lg);animation:mi .18s ease}
+@keyframes mi{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.modal h3{font-family:'Playfair Display',serif;font-size:19px;margin-bottom:9px}.modal p{color:var(--text2);font-size:14px;margin-bottom:22px}
+.mbtns{display:flex;gap:9px;justify-content:flex-end}
+@media(max-width:600px){.page{padding:18px 14px}.page-title{font-size:24px}nav{padding:0 14px}.nav-logo{font-size:16px;margin-right:14px}.tab-btn{padding:6px 9px;font-size:13px}.rg{grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:11px}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-logo">🍽 Recipe<span>.</span></div>
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="showPage('planner')" id="tab-planner">📋 Planner</button>
+    <button class="tab-btn" onclick="showPage('shopping')" id="tab-shopping">🛒 Shopping</button>
+    <button class="tab-btn" onclick="showPage('pantry')" id="tab-pantry">🥗 Pantry</button>
+    <button class="tab-btn" onclick="showPage('nutrition')" id="tab-nutrition">📊 Nutrition</button>
+    <button class="tab-btn" onclick="showPage('add')" id="tab-add">➕ Add Recipe</button>
+  </div>
+</nav>
+<main>
+
+<!-- ── PLANNER ──────────────────────────────────────────────────────────── -->
+<div id="page-planner" class="page active">
+  <div class="ph">
+    <div class="ph-l">
+      <h1 class="page-title">Recipe Planner</h1>
+      <p class="page-sub">Select the recipes you want to cook this week</p>
+    </div>
+    <div class="ph-r">
+      <div class="sw"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input class="si" id="ps" placeholder="Search recipes…" oninput="renderPlanner()"></div>
+      <div class="chip"><span class="n" id="sel-cnt">0</span> selected</div>
+      <button class="cl" onclick="clearSel()">Clear all</button>
+    </div>
+  </div>
+  <div class="rg" id="planner-grid"></div>
+</div>
+
+<!-- ── SHOPPING ─────────────────────────────────────────────────────────── -->
+<div id="page-shopping" class="page">
+  <div class="ph">
+    <div class="ph-l">
+      <h1 class="page-title">Shopping List</h1>
+      <p class="page-sub" id="shop-sub">Based on your selected recipes</p>
+    </div>
+    <div class="ph-r">
+      <div class="sw"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input class="si" id="shop-s" placeholder="Search ingredients…" oninput="renderShopping()"></div>
+      <button class="btn btn-o btn-sm" onclick="haveAll()">✓ Have all</button>
+      <button class="cl" onclick="resetShop()">Reset</button>
+    </div>
+  </div>
+  <div id="shop-content"></div>
+</div>
+
+<!-- ── PANTRY ───────────────────────────────────────────────────────────── -->
+<div id="page-pantry" class="page">
+  <div class="ph">
+    <div class="ph-l">
+      <h1 class="page-title">My Pantry</h1>
+      <p class="page-sub">Tick what you have — see which recipes you can make</p>
+    </div>
+    <div class="ph-r">
+      <div class="sw"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input class="si" id="pantry-s" placeholder="Search ingredients…" oninput="renderPantry()"></div>
+      <div class="chip"><span class="n" id="pantry-cnt">0</span> in pantry</div>
+      <button class="cl" onclick="clearPantry()">Clear</button>
+    </div>
+  </div>
+  <div class="two-col">
+    <div>
+      <div class="sc"><div class="sc-hd"><div class="sc-title">🧺 Ingredients</div></div><div class="sc-body" id="pantry-list"></div></div>
+    </div>
+    <div>
+      <div class="sc">
+        <div class="sc-hd">
+          <div class="sc-title">👩‍🍳 What you can make</div>
+          <div style="display:flex;gap:5px">
+            <button class="fp on" id="fa" onclick="setFF('all')">All</button>
+            <button class="fp" id="fy" onclick="setFF('yes')">✅ Ready</button>
+            <button class="fp" id="fn" onclick="setFF('no')">❌ Missing</button>
+          </div>
+        </div>
+        <div class="rfl" id="feas-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── NUTRITION ─────────────────────────────────────────────────────────── -->
+<div id="page-nutrition" class="page">
+  <div class="ph">
+    <div class="ph-l">
+      <h1 class="page-title">Nutrition Info</h1>
+      <p class="page-sub">Approximate values per serving</p>
+    </div>
+    <div class="ph-r">
+      <div class="sw"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input class="si" id="nutri-s" placeholder="Search recipes…" oninput="renderNutrition()"></div>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);cursor:pointer"><input type="checkbox" id="nutri-sel" onchange="renderNutrition()" style="accent-color:var(--primary)"> Selected only</label>
+    </div>
+  </div>
+  <div class="sc"><div class="ntw"><table><thead><tr><th>Recipe</th><th class="num">Kcal</th><th class="num">Protein</th><th class="num">Fat</th><th class="num">Carbs</th><th class="num">Fiber</th><th>Serving</th></tr></thead><tbody id="ntb"></tbody><tfoot id="ntf"></tfoot></table></div></div>
+</div>
+
+<!-- ── ADD RECIPE ────────────────────────────────────────────────────────── -->
+<div id="page-add" class="page">
+  <div class="ph">
+    <div class="ph-l">
+      <h1 class="page-title" id="add-title">Add Recipe</h1>
+      <p class="page-sub">Expand your cookbook with a new dish</p>
+    </div>
+  </div>
+  <div class="fw">
+    <div class="fst">📝 Basic Info</div>
+    <div class="fg"><label class="fl">Recipe Name *</label><input class="fi" id="f-name" placeholder="e.g. Avocado Toast" maxlength="60"></div>
+    <div class="fg"><label class="fl">Notes / Alternatives</label><input class="fi" id="f-notes" placeholder="e.g. chicken OR beef"></div>
+    <div class="dvd"></div>
+    <div class="fst">🧺 Ingredients</div>
+    <div class="fg">
+      <label class="fl">Pick from existing or add new</label>
+      <div class="ip">
+        <div class="ip-s"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input id="ing-s" placeholder="Filter ingredients…" oninput="renderIngPicker()"></div>
+        <div class="is" id="ing-chips"></div>
+        <div class="anr"><input id="new-ing" placeholder="Type a new ingredient and press Enter…" onkeydown="if(event.key==='Enter')addNewIng()"><button class="btn btn-o btn-sm" onclick="addNewIng()">+ Add</button></div>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">Selected <span id="ing-count" style="font-weight:400;text-transform:none;letter-spacing:0">(0)</span></label>
+      <div class="si2" id="sel-ings"><span style="font-size:13px;color:var(--text3)">None selected yet</span></div>
+    </div>
+    <div class="dvd"></div>
+    <div class="fst">📊 Nutrition per serving <span style="font-weight:400;font-size:14px;font-family:'DM Sans'">(optional)</span></div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Calories (kcal)</label><input class="fi" id="f-cal" type="number" min="0" placeholder="e.g. 450"></div>
+      <div class="fg"><label class="fl">Protein (g)</label><input class="fi" id="f-prot" type="number" min="0" placeholder="e.g. 30"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Fat (g)</label><input class="fi" id="f-fat" type="number" min="0" placeholder="e.g. 15"></div>
+      <div class="fg"><label class="fl">Carbs (g)</label><input class="fi" id="f-carb" type="number" min="0" placeholder="e.g. 40"></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Fiber (g)</label><input class="fi" id="f-fib" type="number" min="0" placeholder="e.g. 5"></div>
+      <div class="fg"><label class="fl">Serving note</label><input class="fi" id="f-srv" placeholder="e.g. ~1 bowl"></div>
+    </div>
+    <div class="dvd"></div>
+    <div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center">
+      <button class="btn btn-p" onclick="saveRecipe()">💾 Save Recipe</button>
+      <button class="btn btn-g" onclick="cancelEdit()">Cancel</button>
+      <button class="btn btn-d btn-sm" id="del-btn" style="display:none;margin-left:auto" onclick="delRecipe()">🗑 Delete</button>
+    </div>
+  </div>
+</div>
+</main>
+
+<div id="toast"></div>
+<div class="mb-bg" id="del-modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h3>Delete recipe?</h3>
+    <p id="del-modal-txt">This cannot be undone.</p>
+    <div class="mbtns"><button class="btn btn-g" onclick="closeModal()">Cancel</button><button class="btn btn-d" onclick="confirmDel()">Delete</button></div>
+  </div>
+</div>
+
+<script>
+// ── DATA ─────────────────────────────────────────────────────────────────
+const DR=[
+  {id:"r1",name:"Rice bowl",ingredients:["rice","chicken breast","carrot","corn","arugula","feta"],notes:"carrot OR corn",nutrition:{cal:450,protein:35,fat:10,carbs:55,fiber:4,serving:"~1 serving"}},
+  {id:"r2",name:"Roasted cauliflower",ingredients:["cauliflower","chickpeas","feta"],notes:"",nutrition:{cal:280,protein:12,fat:10,carbs:35,fiber:8,serving:"~1 serving"}},
+  {id:"r3",name:"Chickpeas sauce",ingredients:["cooking cream","chickpeas","sun-dried tomatoes","parmesan","onion"],notes:"",nutrition:{cal:380,protein:14,fat:18,carbs:40,fiber:7,serving:"~1 serving"}},
+  {id:"r4",name:"Tuna salad",ingredients:["tuna","onion","eggs","cottage cheese"],notes:"",nutrition:{cal:250,protein:30,fat:8,carbs:10,fiber:2,serving:"~1 serving"}},
+  {id:"r5",name:"Broccoli salad",ingredients:["broccoli","chickpeas","yogurt"],notes:"",nutrition:{cal:220,protein:10,fat:6,carbs:30,fiber:7,serving:"~1 serving"}},
+  {id:"r6",name:"Peas salad",ingredients:["peas","dill","parsley","onion","vinegar"],notes:"",nutrition:{cal:150,protein:6,fat:2,carbs:25,fiber:6,serving:"~1 serving"}},
+  {id:"r7",name:"Beet salad",ingredients:["beetroot","walnuts","garlic"],notes:"",nutrition:{cal:180,protein:4,fat:10,carbs:20,fiber:4,serving:"~1 serving"}},
+  {id:"r8",name:"Multivitamin salad",ingredients:["beetroot","celery","radish","vinegar","garlic"],notes:"",nutrition:{cal:120,protein:3,fat:2,carbs:18,fiber:5,serving:"~1 serving"}},
+  {id:"r9",name:"Caesar salad",ingredients:["chicken breast","spinach","parmesan","eggs","tomatoes","yogurt","garlic"],notes:"",nutrition:{cal:320,protein:30,fat:12,carbs:18,fiber:4,serving:"~1 serving"}},
+  {id:"r10",name:"Noodles stir fry",ingredients:["noodles","carrot","onion","garlic","red pepper","mushrooms","tofu","tuna","chicken breast"],notes:"tofu OR tuna OR chicken breast",nutrition:{cal:420,protein:20,fat:10,carbs:60,fiber:5,serving:"~1 serving"}},
+  {id:"r11",name:"Butter chicken",ingredients:["chicken breast","yogurt","rice","tomato sauce","onion","garlic"],notes:"",nutrition:{cal:480,protein:38,fat:15,carbs:45,fiber:4,serving:"~1 serving"}},
+  {id:"r12",name:"Poke bowl",ingredients:["rice","salmon","tuna","edamame","carrot","cucumber","avocado"],notes:"salmon OR tuna",nutrition:{cal:450,protein:28,fat:15,carbs:50,fiber:6,serving:"~1 serving"}},
+  {id:"r13",name:"Quesadilla",ingredients:["tortillas","chicken breast","red pepper","corn","cheese"],notes:"",nutrition:{cal:480,protein:32,fat:18,carbs:45,fiber:4,serving:"~1 serving"}},
+  {id:"r14",name:"Miso soup",ingredients:["tofu","miso","spinach","mushrooms","broccoli"],notes:"",nutrition:{cal:180,protein:12,fat:6,carbs:18,fiber:5,serving:"~1 serving"}},
+  {id:"r15",name:"Squash patties",ingredients:["eggs","zucchini","carrot","onion","red pepper"],notes:"",nutrition:{cal:220,protein:10,fat:8,carbs:22,fiber:4,serving:"~1 serving"}},
+  {id:"r16",name:"Egg muffins",ingredients:["eggs","red pepper","cottage cheese"],notes:"",nutrition:{cal:180,protein:14,fat:10,carbs:8,fiber:2,serving:"~2 muffins"}},
+  {id:"r17",name:"Street corn",ingredients:["corn","parsley","yogurt","feta"],notes:"",nutrition:{cal:200,protein:6,fat:8,carbs:28,fiber:3,serving:"~1 serving"}},
+  {id:"r18",name:"Lasagna",ingredients:["beef","tomato sauce","cheese","pasta"],notes:"",nutrition:{cal:520,protein:28,fat:22,carbs:52,fiber:4,serving:"~1 serving"}},
+  {id:"r19",name:"Dumplings",ingredients:["chicken breast","carrot","onion","rice paper"],notes:"",nutrition:{cal:320,protein:22,fat:8,carbs:38,fiber:3,serving:"~6 pieces"}},
+  {id:"r20",name:"Quiche",ingredients:["cauliflower","broccoli","chicken breast","onion","red pepper","cooking cream","cheese"],notes:"",nutrition:{cal:380,protein:25,fat:18,carbs:22,fiber:5,serving:"~1 serving"}},
+  {id:"r21",name:"Steak salad",ingredients:["beef","chickpeas","cucumber","tomatoes","parsley"],notes:"",nutrition:{cal:350,protein:28,fat:14,carbs:20,fiber:6,serving:"~1 serving"}},
+  {id:"r22",name:"Stuffed peppers",ingredients:["red pepper","rice","mushrooms","carrot","onion"],notes:"",nutrition:{cal:280,protein:8,fat:4,carbs:50,fiber:5,serving:"~2 peppers"}},
+  {id:"r23",name:"Kapustneak",ingredients:["cabbage","red pepper","onion","beef","chicken breast"],notes:"beef OR chicken breast",nutrition:{cal:300,protein:22,fat:10,carbs:28,fiber:5,serving:"~1 serving"}},
+  {id:"r24",name:"Julien",ingredients:["mushrooms","chicken breast","onion","garlic","cooking cream"],notes:"",nutrition:{cal:380,protein:28,fat:20,carbs:15,fiber:3,serving:"~1 serving"}},
+  {id:"r25",name:"Brownies",ingredients:["sweet potatoes","cocoa","eggs","peanut butter","chocolate","baking powder","vanilla","honey"],notes:"",nutrition:{cal:320,protein:8,fat:16,carbs:40,fiber:4,serving:"~2 brownies"}},
+  {id:"r26",name:"Banana bread",ingredients:["banana","oats","flour","baking powder","vanilla","walnuts","chocolate","eggs","yogurt","honey"],notes:"",nutrition:{cal:280,protein:7,fat:9,carbs:48,fiber:4,serving:"~1 slice"}},
+  {id:"r27",name:"Sirniki",ingredients:["cottage cheese","eggs","vanilla","honey"],notes:"",nutrition:{cal:220,protein:14,fat:8,carbs:22,fiber:1,serving:"~3 pieces"}},
+  {id:"r28",name:"Cheesecake",ingredients:["Philadelphia cheese","yogurt","eggs","honey","vanilla","flour"],notes:"",nutrition:{cal:350,protein:10,fat:20,carbs:38,fiber:1,serving:"~1 slice"}},
+  {id:"r29",name:"Nimereuca salad",ingredients:["mushrooms","carrot","eggs","chicken breast","onion"],notes:"",nutrition:{cal:280,protein:22,fat:12,carbs:15,fiber:3,serving:"~1 serving"}},
+  {id:"r30",name:"Tzatziki",ingredients:["yogurt","dill","cucumber","oil"],notes:"",nutrition:{cal:100,protein:5,fat:5,carbs:8,fiber:1,serving:"~3 tbsp"}},
+  {id:"r31",name:"Alfredo",ingredients:["cooking cream","pasta","chicken breast","sun-dried tomatoes","onion","garlic","parmesan"],notes:"",nutrition:{cal:520,protein:32,fat:22,carbs:48,fiber:3,serving:"~1 serving"}},
+  {id:"r32",name:"Alade",ingredients:["oats","banana","eggs","dark chocolate","honey"],notes:"",nutrition:{cal:250,protein:8,fat:8,carbs:36,fiber:4,serving:"~3 pancakes"}},
+  {id:"r33",name:"Chia pudding",ingredients:["banana","peanut butter","yogurt","chia seeds","cocoa","vanilla","honey","oats"],notes:"",nutrition:{cal:320,protein:10,fat:12,carbs:45,fiber:8,serving:"~1 jar"}},
+  {id:"r34",name:"Flax porridge",ingredients:["flax seeds","banana","apple"],notes:"",nutrition:{cal:180,protein:5,fat:6,carbs:28,fiber:6,serving:"~1 bowl"}},
+];
+
+let S={recipes:[],pantry:{},selected:{},editId:null,formIngs:[],ff:'all'};
+
+function load(){
+  try{
+    const s=localStorage.getItem('rp2');
+    if(s){const d=JSON.parse(s);S.recipes=d.recipes||JSON.parse(JSON.stringify(DR));S.pantry=d.pantry||{};S.selected=d.selected||{};}
+    else S.recipes=JSON.parse(JSON.stringify(DR));
+  }catch(e){S.recipes=JSON.parse(JSON.stringify(DR));}
+}
+function save(){localStorage.setItem('rp2',JSON.stringify({recipes:S.recipes,pantry:S.pantry,selected:S.selected}));}
+function allIngs(){const s=new Set();S.recipes.forEach(r=>r.ingredients.forEach(i=>s.add(i)));return[...s].sort();}
+const cap=s=>s?s.charAt(0).toUpperCase()+s.slice(1):s;
+const esc=s=>s.replace(/'/g,"\\'");
+
+// ── NAV ──────────────────────────────────────────────────────────────────
+function showPage(n){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+n).classList.add('active');
+  document.getElementById('tab-'+n).classList.add('active');
+  if(n==='planner')renderPlanner();
+  if(n==='shopping')renderShopping();
+  if(n==='pantry')renderPantry();
+  if(n==='nutrition')renderNutrition();
+  if(n==='add'&&!S.editId)resetForm();
+}
+
+// ── PLANNER ──────────────────────────────────────────────────────────────
+function renderPlanner(){
+  const q=(document.getElementById('ps')?.value||'').toLowerCase();
+  const g=document.getElementById('planner-grid');
+  const cnt=Object.values(S.selected).filter(Boolean).length;
+  document.getElementById('sel-cnt').textContent=cnt;
+  const rs=S.recipes.filter(r=>r.name.toLowerCase().includes(q));
+  if(!rs.length){g.innerHTML='<div class="nr">No recipes found for "'+q+'"</div>';return;}
+  g.innerHTML=rs.map(r=>{
+    const sel=S.selected[r.id];
+    const cal=r.nutrition?.cal?`<span>${r.nutrition.cal}</span> kcal`:'';
+    return`<div class="rc ${sel?'sel':''}" onclick="toggleR('${r.id}')">
+      <div class="rc-check"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div class="rc-name">${r.name}</div>
+      <div class="rc-meta"><span class="ic"><svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>${r.ingredients.length}</span>${r.notes?'<span class="nt">alt</span>':''}</div>
+      ${cal?`<div class="rc-cal">${cal}</div>`:''}
+      <button class="edit-btn" onclick="event.stopPropagation();editR('${r.id}')" title="Edit">✏️</button>
+    </div>`;
+  }).join('');
+}
+function toggleR(id){S.selected[id]=!S.selected[id];save();renderPlanner();}
+function clearSel(){S.selected={};save();renderPlanner();toast('Selection cleared');}
+
+// ── SHOPPING ─────────────────────────────────────────────────────────────
+function renderShopping(){
+  const q=(document.getElementById('shop-s')?.value||'').toLowerCase();
+  const c=document.getElementById('shop-content');
+  const sel=S.recipes.filter(r=>S.selected[r.id]);
+  if(!sel.length){
+    document.getElementById('shop-sub').textContent='No recipes selected';
+    c.innerHTML=`<div class="empty"><div class="ei">🛒</div><h3>Nothing here yet</h3><p>Select recipes in the Planner to build your list.</p><br><button class="btn btn-p" style="margin:0 auto" onclick="showPage('planner')">Go to Planner →</button></div>`;
+    return;
+  }
+  const needed=new Set();sel.forEach(r=>r.ingredients.forEach(i=>needed.add(i)));
+  document.getElementById('shop-sub').textContent=`${sel.length} recipe${sel.length>1?'s':''} · ${needed.size} ingredients`;
+  const buy=[...needed].filter(i=>!S.pantry[i]&&i.toLowerCase().includes(q)).sort();
+  const have=[...needed].filter(i=>S.pantry[i]&&i.toLowerCase().includes(q)).sort();
+  let h='';
+  if(buy.length)h+=`<div class="sc"><div class="sc-hd"><div class="sc-title">🛒 To Buy <span style="font-size:12px;color:var(--danger);font-weight:500">${buy.length}</span></div></div><div class="sc-body">${buy.map(i=>cbr(i,false,`toggleP('${esc(i)}')`,`<span class="bdg bdg-buy">Buy</span>`)).join('')}</div></div>`;
+  if(have.length)h+=`<div class="sc"><div class="sc-hd"><div class="sc-title">✅ Have it <span style="font-size:12px;color:var(--success);font-weight:500">${have.length}</span></div></div><div class="sc-body">${have.map(i=>cbr(i,true,`toggleP('${esc(i)}')`,`<span class="bdg bdg-have">Have</span>`)).join('')}</div></div>`;
+  if(!h)h=`<div class="empty"><div class="ei">🔍</div><p>No ingredients match "${q}"</p></div>`;
+  h+=`<div style="margin-top:20px"><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:9px">Selected Recipes</div><div style="display:flex;flex-wrap:wrap;gap:6px">${sel.map(r=>`<span style="font-size:13px;padding:4px 10px;background:var(--tag-bg);color:var(--primary);border-radius:6px;font-weight:500">${r.name}</span>`).join('')}</div></div>`;
+  c.innerHTML=h;
+}
+function cbr(label,checked,onclick,badge){
+  return`<div class="cbr" onclick="${onclick}"><div class="cb ${checked?'on':''}"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><span class="cbl ${checked?'done':''}">${cap(label)}</span>${badge}</div>`;
+}
+function toggleP(ing){S.pantry[ing]=!S.pantry[ing];save();const a=document.querySelector('.page.active')?.id;if(a==='page-shopping')renderShopping();if(a==='page-pantry')renderPantry();}
+function haveAll(){S.recipes.filter(r=>S.selected[r.id]).forEach(r=>r.ingredients.forEach(i=>{S.pantry[i]=true;}));save();renderShopping();toast('Marked all as available ✓');}
+function resetShop(){S.recipes.filter(r=>S.selected[r.id]).forEach(r=>r.ingredients.forEach(i=>{S.pantry[i]=false;}));save();renderShopping();toast('Reset');}
+
+// ── PANTRY ───────────────────────────────────────────────────────────────
+function renderPantry(){
+  const q=(document.getElementById('pantry-s')?.value||'').toLowerCase();
+  const ings=allIngs().filter(i=>i.toLowerCase().includes(q));
+  const hc=allIngs().filter(i=>S.pantry[i]).length;
+  document.getElementById('pantry-cnt').textContent=hc;
+  document.getElementById('pantry-list').innerHTML=ings.map(i=>{
+    const h=!!S.pantry[i];
+    return`<div class="cbr" onclick="toggleP('${esc(i)}')"><div class="cb ${h?'on':''}"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div><span class="cbl">${cap(i)}</span></div>`;
+  }).join('')||'<div style="padding:18px;color:var(--text3);font-size:14px;text-align:center">No ingredients found</div>';
+  renderFeas();
+}
+function setFF(f){S.ff=f;['all','yes','no'].forEach(x=>document.getElementById(f==='all'&&x==='all'||f==='yes'&&x==='yes'||f==='no'&&x==='no'?x:x)?.classList.toggle('on',x===f));renderFeas();}
+function renderFeas(){
+  const res=S.recipes.map(r=>{const miss=r.ingredients.filter(i=>!S.pantry[i]);return{r,miss,ok:!miss.length};}).filter(({ok})=>S.ff==='yes'?ok:S.ff==='no'?!ok:true);
+  document.getElementById('feas-list').innerHTML=res.map(({r,miss,ok})=>`<div class="fc ${ok?'ok':''}"><div class="fc-name">${r.name}</div><div class="fs ${ok?'y':'n'}">${ok?'✅ Can make':`❌ Missing ${miss.length}`}</div>${!ok&&miss.length?`<div class="fmiss">${miss.map(cap).join(', ')}</div>`:''}</div>`).join('')||'<div style="padding:18px;text-align:center;color:var(--text3);font-size:14px">No recipes match</div>';
+}
+function clearPantry(){S.pantry={};save();renderPantry();toast('Pantry cleared');}
+
+// ── NUTRITION ────────────────────────────────────────────────────────────
+function renderNutrition(){
+  const q=(document.getElementById('nutri-s')?.value||'').toLowerCase();
+  const so=document.getElementById('nutri-sel')?.checked;
+  let rs=S.recipes.filter(r=>r.name.toLowerCase().includes(q));
+  if(so)rs=rs.filter(r=>S.selected[r.id]);
+  document.getElementById('ntb').innerHTML=rs.map(r=>{
+    const n=r.nutrition||{};const isSel=S.selected[r.id];
+    return`<tr class="${isSel?'nt-sel':''}"><td>${r.name}${isSel?' <span style="font-size:10px;background:var(--tag-bg);color:var(--primary);padding:1px 5px;border-radius:3px;font-weight:600">✓</span>':''}</td><td class="num">${n.cal||'—'}</td><td class="num">${n.protein||'—'}</td><td class="num">${n.fat||'—'}</td><td class="num">${n.carbs||'—'}</td><td class="num">${n.fiber||'—'}</td><td>${n.serving||'—'}</td></tr>`;
+  }).join('')||'<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:28px">No recipes found</td></tr>';
+  const sel=S.recipes.filter(r=>S.selected[r.id]&&r.nutrition?.cal);
+  if(sel.length){const t=sel.reduce((a,r)=>({cal:a.cal+(r.nutrition.cal||0),protein:a.protein+(r.nutrition.protein||0),fat:a.fat+(r.nutrition.fat||0),carbs:a.carbs+(r.nutrition.carbs||0),fiber:a.fiber+(r.nutrition.fiber||0)}),{cal:0,protein:0,fat:0,carbs:0,fiber:0});document.getElementById('ntf').innerHTML=`<tr class="nt-tot"><td>Total (${sel.length} recipe${sel.length>1?'s':''})</td><td class="num">${t.cal}</td><td class="num">${t.protein}</td><td class="num">${t.fat}</td><td class="num">${t.carbs}</td><td class="num">${t.fiber}</td><td>—</td></tr>`;}
+  else document.getElementById('ntf').innerHTML='';
+}
+
+// ── ADD / EDIT ────────────────────────────────────────────────────────────
+function resetForm(){
+  S.editId=null;S.formIngs=[];
+  ['f-name','f-notes','f-cal','f-prot','f-fat','f-carb','f-fib','f-srv'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ing-s').value='';document.getElementById('new-ing').value='';
+  document.getElementById('add-title').textContent='Add Recipe';
+  document.getElementById('del-btn').style.display='none';
+  renderIngPicker();renderSelIngs();
+}
+function editR(id){
+  const r=S.recipes.find(x=>x.id===id);if(!r)return;
+  S.editId=id;S.formIngs=[...r.ingredients];
+  document.getElementById('f-name').value=r.name;
+  document.getElementById('f-notes').value=r.notes||'';
+  const n=r.nutrition||{};
+  document.getElementById('f-cal').value=n.cal||'';document.getElementById('f-prot').value=n.protein||'';
+  document.getElementById('f-fat').value=n.fat||'';document.getElementById('f-carb').value=n.carbs||'';
+  document.getElementById('f-fib').value=n.fiber||'';document.getElementById('f-srv').value=n.serving||'';
+  document.getElementById('add-title').textContent='Edit Recipe';
+  document.getElementById('del-btn').style.display='inline-flex';
+  document.getElementById('ing-s').value='';
+  renderIngPicker();renderSelIngs();showPage('add');
+}
+function cancelEdit(){resetForm();showPage('planner');}
+
+function renderIngPicker(){
+  const q=(document.getElementById('ing-s')?.value||'').toLowerCase();
+  const all=allIngs().filter(i=>i.toLowerCase().includes(q));
+  document.getElementById('ing-chips').innerHTML=all.map(i=>{
+    const s=S.formIngs.includes(i);
+    return`<span class="ic2 ${s?'sel2':''}" onclick="toggleFI('${esc(i)}')">${s?'✓ ':''}${cap(i)}</span>`;
+  }).join('');
+}
+function renderSelIngs(){
+  const c=document.getElementById('sel-ings');
+  document.getElementById('ing-count').textContent=`(${S.formIngs.length})`;
+  c.innerHTML=S.formIngs.length?S.formIngs.map(i=>`<span class="sit">${cap(i)}<button onclick="removeFI('${esc(i)}')">✕</button></span>`).join(''):'<span style="font-size:13px;color:var(--text3)">None selected yet</span>';
+}
+function toggleFI(ing){const i=S.formIngs.indexOf(ing);i>=0?S.formIngs.splice(i,1):S.formIngs.push(ing);renderIngPicker();renderSelIngs();}
+function removeFI(ing){S.formIngs=S.formIngs.filter(i=>i!==ing);renderIngPicker();renderSelIngs();}
+function addNewIng(){
+  const inp=document.getElementById('new-ing');const v=inp.value.trim().toLowerCase();
+  if(!v)return;if(!S.formIngs.includes(v))S.formIngs.push(v);
+  inp.value='';renderIngPicker();renderSelIngs();toast(`Added "${cap(v)}"`);
+}
+function saveRecipe(){
+  const name=document.getElementById('f-name').value.trim();
+  if(!name){toast('⚠️ Please enter a recipe name');return;}
+  if(!S.formIngs.length){toast('⚠️ Please add at least one ingredient');return;}
+  const r={id:S.editId||'r_'+Date.now(),name,ingredients:[...S.formIngs],notes:document.getElementById('f-notes').value.trim(),nutrition:{cal:+document.getElementById('f-cal').value||0,protein:+document.getElementById('f-prot').value||0,fat:+document.getElementById('f-fat').value||0,carbs:+document.getElementById('f-carb').value||0,fiber:+document.getElementById('f-fib').value||0,serving:document.getElementById('f-srv').value.trim()}};
+  if(S.editId){const i=S.recipes.findIndex(x=>x.id===S.editId);if(i>=0)S.recipes[i]=r;toast('Recipe updated ✓');}
+  else{S.recipes.push(r);toast('Recipe added ✓');}
+  save();resetForm();showPage('planner');
+}
+function delRecipe(){const r=S.recipes.find(x=>x.id===S.editId);if(!r)return;document.getElementById('del-modal-txt').textContent=`"${r.name}" will be permanently removed.`;document.getElementById('del-modal').classList.add('open');}
+function confirmDel(){S.recipes=S.recipes.filter(r=>r.id!==S.editId);delete S.selected[S.editId];save();closeModal();resetForm();showPage('planner');toast('Recipe deleted');}
+function closeModal(){document.getElementById('del-modal').classList.remove('open');}
+
+// ── TOAST ────────────────────────────────────────────────────────────────
+let tt;function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2400);}
+
+// ── INIT ─────────────────────────────────────────────────────────────────
+load();renderPlanner();
+</script>
+</body>
+</html>
